@@ -117,4 +117,4 @@ Female = Snake('female', genes.yellowBelly, genes.orangeDream, genes.fire, genes
 pair = Pairing(Male, Female)
 pair.get_pos_offspring()
 df = pd.DataFrame(pair.pos_offspring)
-print(f'Possible Offspring: \n{df}')
+print(f'Possible Offsprings\n{df}')
