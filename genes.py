@@ -1,5 +1,6 @@
 import pandas as pd
 from itertools import combinations
+from copy import deepcopy
 
 class Gene:
     pass
@@ -29,8 +30,12 @@ class Genes:
         self.yellowBelly = CoDom('YB', 'yellow belly')
         self.gravel = CoDom('YB', 'gravel')
         self.asphalt = CoDom('YB', 'asphalt')
+        self.specter = CoDom('YB', 'specter')
         
         self.butter = CoDom('BEL', 'butter')
+        self.mojave = CoDom('BEL', 'mojave')
+        self.bamboo = CoDom('BEL', 'bamboo')
+        self.special = CoDom('BEL', 'special')
 
         self.fire = CoDom('FR', 'fire')
 
@@ -87,34 +92,49 @@ class Pairing:
 
     def get_pos_offspring(self):
         output = sum([list(map(list, combinations(self.male_genes+self.female_genes, i))) for i in range(len(self.male_genes+self.female_genes) + 1)], [])
-        if not self.female_super is []:
-            for gene in self.female_super:
-                for l in output:
-                    l.append(gene)
-        if not self.male_super is []:
-            for gene in self.male_super:
-                for l in output:
-                    l.append(gene)
+        if not self.female.super is []:
+            for comp in self.female.super:
+                origin_out = deepcopy(output)
+                output = []
+                if not self.female_super is []:
+                    for gene in self.female_super:
+                        if gene.complex == comp:
+                            temp = deepcopy(origin_out)
+                            for l in temp:
+                                l.append(gene.name)
+                            output = output + temp
+        if not self.male.super is []:
+            for comp in self.male.super:
+                origin_out = deepcopy(output)
+                output = []
+                if not self.male_super is []:
+                    for gene in self.male_super:
+                        if gene.complex == comp:
+                            temp = deepcopy(origin_out)
+                            for l in temp:
+                                l.append(gene.name)
+                            output = output + temp
         return output
 
     def process_super(self):
         for gene in self.female.genes:
             if gene.complex in self.female.super:
-                self.female_super.append(gene.name)
+                self.female_super.append(gene)
                 self.female_super = list(set(self.female_super))
                 self.female_genes.remove(gene.name) 
         for gene in self.male.genes:
             if gene.complex in self.male.super:
-                self.male_super.append(gene.name)
+                self.male_super.append(gene)
                 self.male_super = list(set(self.male_super))
                 self.male_genes.remove(gene.name) 
         
 genes = Genes()
 
-Male = Snake('male', genes.asphalt, genes.asphalt, genes.banana)
-Female = Snake('female', genes.yellowBelly, genes.orangeDream, genes.fire, genes.leopard)
+Male = Snake('male', genes.mojave, genes.special, genes.yellowBelly, genes.specter, genes.orangeDream)
+Female = Snake('female', genes.bamboo, genes.butter, genes.gravel, genes.asphalt)
 
 pair = Pairing(Male, Female)
 pair.get_pos_offspring()
 df = pd.DataFrame(pair.pos_offspring)
+#print(pair.pos_offspring)
 print(f'Possible Offsprings\n{df}')
