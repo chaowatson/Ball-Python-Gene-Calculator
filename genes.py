@@ -47,8 +47,8 @@ class Genes:
 
         self.banana = CoDom('BN', 'banana')
 
-        self.desertGhost = Res('DG', 'desert ghost') 
-
+        self.het_desertGhost = Res('DG', 'het_desert ghost') 
+        
 
 class Snake:
     def __init__(self, gender, *genes):
@@ -87,6 +87,7 @@ class Pairing:
         self.female_genes = female.genes_name
         self.female_super = []
         self.male_super = []
+        self.super = []
         self.process_super()
         self.pos_offspring = self.get_pos_offspring()
 
@@ -114,27 +115,73 @@ class Pairing:
                             for l in temp:
                                 l.append(gene.name)
                             output = output + temp
-        return output
+        [offspring.sort() for offspring in output]
+        out = []
+        [out.append(offspring) for offspring in output if offspring not in out]
+        return out
 
     def process_super(self):
         for gene in self.female.genes:
             if gene.complex in self.female.super:
                 self.female_super.append(gene)
-                self.female_super = list(set(self.female_super))
                 self.female_genes.remove(gene.name) 
+                
         for gene in self.male.genes:
             if gene.complex in self.male.super:
                 self.male_super.append(gene)
-                self.male_super = list(set(self.male_super))
                 self.male_genes.remove(gene.name) 
-        
+
+    def cal_possibility(self):
+        self.super = self.male_super + self.female_super
+        min_pos = 1 / (2 ** max([len(amount) for amount in pair.pos_offspring]))
+        for offspring in self.pos_offspring:
+            offspring.insert(0, min_pos)
+            repeat = []
+            for gene in offspring:
+                if gene in [gene.name for gene in self.super]:
+                    for _gene in self.super:
+                        if gene == _gene.name:
+                            if 2 == [gene.name for gene in self.male_super].count(_gene.name):
+                                if not gene in repeat:
+                                    offspring[0] = offspring[0]*2
+                                    break
+                            elif 2 == [gene.name for gene in self.female_super].count(_gene.name):
+                                if not gene in repeat:
+                                    offspring[0] = offspring[0]*2
+                                    break
+                            elif gene in [gene.name for gene in self.male_super]:
+                                if gene in [gene.name for gene in self.female_super]:
+                                    if not gene in repeat:
+                                        if not _gene.complex in repeat:
+                                            offspring[0] = offspring[0]*2
+                                            break
+                                    else:
+                                        offspring[0] = offspring[0]/2
+                                        break
+                elif gene in self.male_genes:
+                    if gene in self.female_genes:
+                        if not gene in repeat:
+                            offspring[0] = offspring[0]*2
+                        else:
+                            offspring[0] = offspring[0]/2
+                if type(gene) is str:
+                    if gene in [gene.name for gene in self.super]:
+                        for _gene in self.super:
+                            if gene == _gene.name:
+                                repeat.append(_gene.complex)
+                                break
+                    repeat.append(gene)
+
+        self.pos_offspring = sorted(self.pos_offspring, key = lambda x: x[0], reverse=True)        
+
 genes = Genes()
 
-Male = Snake('male', genes.mojave, genes.special, genes.yellowBelly, genes.specter, genes.orangeDream)
-Female = Snake('female', genes.bamboo, genes.butter, genes.gravel, genes.asphalt)
+Male = Snake('male', genes.yellowBelly, genes.asphalt, genes.butter, genes.mojave)
+Female = Snake('female', genes.asphalt, genes.yellowBelly, genes.special, genes.bamboo)
 
 pair = Pairing(Male, Female)
 pair.get_pos_offspring()
-df = pd.DataFrame(pair.pos_offspring)
 #print(pair.pos_offspring)
+pair.cal_possibility()
+df = pd.DataFrame(pair.pos_offspring)
 print(f'Possible Offsprings\n{df}')
