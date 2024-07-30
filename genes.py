@@ -36,6 +36,7 @@ class Genes:
         self.mojave = CoDom('BEL', 'mojave')
         self.bamboo = CoDom('BEL', 'bamboo')
         self.special = CoDom('BEL', 'special')
+        self.phantom = CoDom('BEL', 'phantom')
 
         self.fire = CoDom('FR', 'fire')
 
@@ -43,13 +44,15 @@ class Genes:
         self.enchi = CoDom('EC', 'enchi')
         self.pastel = CoDom('PT', 'pastel')
         self.mario = CoDom('MR', 'mario')  
+        self.hra = CoDom('RA', 'hra')  
         self.spider = Dom('SP', 'spider')
         
         self.leopard = Dom('LP', 'leopard')
 
         self.banana = CoDom('BN', 'banana')
 
-        self.het_desertGhost = Res('DG', 'het_desert ghost') 
+        self.het_desertGhost = Res('DG', 'het desert ghost') 
+        self.het_orangeGhost = Res('DG', 'het orange ghost') 
         
 
 class Snake:
@@ -178,8 +181,8 @@ class Pairing:
 
 genes = Genes()
 
-Male = Snake('male', genes.mario, genes.het_desertGhost, genes.het_desertGhost)
-Female = Snake('female', genes.pastel, genes.pastel, genes.het_desertGhost)
+Male = Snake('male', genes.banana, genes.mojave, genes.phantom, genes.pastel, genes.spider)
+Female = Snake('female', genes.hra, genes.pastel, genes.het_orangeGhost)
 
 pair = Pairing(Male, Female)
 pair.get_pos_offspring()
@@ -187,4 +190,4 @@ pair.get_pos_offspring()
 pair.cal_possibility()
 df = pd.DataFrame(pair.pos_offspring)
 print(f'Possible Offsprings\n{df}')
-df.to_csv('MarioDG_SuperPastelhetDG.csv')
+df.to_csv('yegaga.csv')
